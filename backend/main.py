@@ -213,42 +213,39 @@ class AiPodcastClipper:
         s3_client.download_file("iaiai-podcast-clipper",
                                 s3_key, str(video_path))
 
-        # 1. transcription
-        transcripts_segments_json = self.transcribe_video(base_dir, video_path)
-        transcript_segments = json.loads(transcripts_segments_json)
+        # 1. Transcription
+        transcript_segments_json = self.transcribe_video(base_dir, video_path)
+        transcript_segments = json.loads(transcript_segments_json)
 
-        # 2. identify moments for clips
-        print("identifying print moments")
+        # 2. Identify moments for clips
+        print("Identifying clip moments")
         identified_moments_raw = self.identify_moments(transcript_segments)
 
         cleaned_json_string = identified_moments_raw.strip()
         if cleaned_json_string.startswith("```json"):
             cleaned_json_string = cleaned_json_string[len("```json"):].strip()
-
         if cleaned_json_string.endswith("```"):
-            cleaned_json_string = cleaned_json_string[:-len("```"):].strip()
+            cleaned_json_string = cleaned_json_string[:-len("```")].strip()
 
         clip_moments = json.loads(cleaned_json_string)
-        if not clip_moments or isinstance(clip_moments, list):
+        if not clip_moments or not isinstance(clip_moments, list):
             print("Error: Identified moments is not a list")
             clip_moments = []
 
         print(clip_moments)
 
         # change to higher amount in production
-        # process clips
-        for index, moment in enumerate(clip_moments[:3]):
+        # 3. Process clips
+        for index, moment in enumerate(clip_moments[:5]):
             if "start" in moment and "end" in moment:
                 print("Processing clip" + str(index) + " from " +
-                      str(moment["start"]) + " to " + str[moment["end"]])
+                      str(moment["start"]) + " to " + str(moment["end"]))
                 process_clip(base_dir, video_path, s3_key,
                              moment["start"], moment["end"], index, transcript_segments)
 
-        # remove remnants
         if base_dir.exists():
-            print("Cleaning up temp dir after " + base_dir)
+            print(f"Cleaning up temp dir after {base_dir}")
             shutil.rmtree(base_dir, ignore_errors=True)
-
 # running code locally
 
 

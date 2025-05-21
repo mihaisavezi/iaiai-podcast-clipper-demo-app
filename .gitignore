@@ -27,22 +27,22 @@ pnpm-debug.log*
 *.mp4
 
 # Frontend (evo2-frontend - Next.js)
-ai-podcast-clipper-frontend/node_modules/
-ai-podcast-clipper-frontend/.next/
-ai-podcast-clipper-frontend/out/
-ai-podcast-clipper-frontend/.env*.local
-ai-podcast-clipper-frontend/*.tsbuildinfo
-ai-podcast-clipper-frontend/next-env.d.ts
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env*.local
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
 
 # Backend (evo2-backend - Python/Modal)
-ai-podcast-clipper-backend/__pycache__/
-ai-podcast-clipper-backend/*.pyc
-ai-podcast-clipper-backend/*.pyo
-ai-podcast-clipper-backend/*.pyd
-ai-podcast-clipper-backend/.venv/
-ai-podcast-clipper-backend/venv/
-ai-podcast-clipper-backend/env/
-ai-podcast-clipper-backend/*.env
-ai-podcast-clipper-backend/.env
-ai-podcast-clipper-backend/.modal*
-ai-podcast-clipper-backend/brca1_analysis_plot.png
+backend/__pycache__/
+backend/*.pyc
+backend/*.pyo
+backend/*.pyd
+backend/.venv/
+backend/venv/
+backend/env/
+backend/*.env
+backend/.env
+backend/.modal*
+backend/brca1_analysis_plot.png
