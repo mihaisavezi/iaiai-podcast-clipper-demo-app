@@ -61,11 +61,12 @@ def create_vertical_video(tracks, scores, pyframes_path, pyavi_path, audio_path,
             score_slice = score_array[slice_start:slice_end]
             avg_score = float(np.mean(score_slice)
                               if len(score_slice) > 0 else 0)
-            
+
             faces[frame].append(
                 {'track': tidx, 'score': avg_score, 's': track['proc_track']["s"][fidx], 'x': track['proc_track']["x"][fidx], 'y': track['proc_track']["y"][fidx]})
-            
+
     temp_video_path = os.path.join(pyavi_path, "video_only.mp4")
+
     vout = None
     for fidx, fname in tqdm(enumerate(flist), total=len(flist), desc="Creating vertical video"):
         img = cv2.imread(fname)
