@@ -51,8 +51,10 @@ export default async function DashboardPage() {
         status: file.status,
         clipsCount: file._count.clips,
         createdAt: file.createdAt,
-    }))
+    })) ?? []
 
     
-    return <DashboardClient uploadedFiles={formattedFiles} clips={userData?.clips} />
+    return (
+        <DashboardClient uploadedFiles={formattedFiles} clips={userData?.clips ?? []} />
+      );
 }

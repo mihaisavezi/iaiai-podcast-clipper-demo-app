@@ -14,7 +14,7 @@ export const helloWorld = inngest.createFunction(
   },
   { event: "process-video-events" },
   async ({ event, step }) => {
-    const { uploadedFileId } = event.data;
+    const { uploadedFileId } = event.data as { uploadedFileId: string, userId: string};
 
     try {
       const { userId, credits, s3Key } = await step.run(
@@ -56,7 +56,7 @@ export const helloWorld = inngest.createFunction(
         });
 
         await step.run("call-modal-endpoint", async () => {
-          await fetch(env.PROCESS_VIDEO_ENDPOINT as string, {
+          await fetch(env.PROCESS_VIDEO_ENDPOINT, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

@@ -17,7 +17,14 @@ import { Loader2, UploadCloud } from "lucide-react";
 import { generateUploadUrl } from "~/actions/s3";
 import { toast } from "sonner";
 import { processVideo } from "~/actions/generation";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "./ui/table";
 import { Badge } from "./ui/badge";
 import { useRouter } from "next/navigation";
 import { ClipDisplay } from "./clip-display";
@@ -37,77 +44,69 @@ export function DashboardClient({
   clips: Clip[];
 }) {
   const [files, setFiles] = useState<File[]>([]);
-  const [uploading, setUploading] = useState<boolean>(false);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [uploading, setUploading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const router = useRouter();
 
   const handleRefresh = async () => {
-    setRefreshing(true)
+    setRefreshing(true);
     router.refresh();
-    setTimeout(() => {
-      setRefreshing(false)
-    }, 600)
-  }
+    setTimeout(() => setRefreshing(false), 600);
+  };
 
-  const handleDrop = (acceptedFiles:File[]) => {
+  const handleDrop = (acceptedFiles: File[]) => {
     setFiles(acceptedFiles);
   };
 
- const handleUpload = async () => {
-    if(files.length === 0 ) return
+  const handleUpload = async () => {
+    if (files.length === 0) return;
 
     const file = files[0]!;
     setUploading(true);
 
     try {
-        // client -> bucket
-        // BAD FLOW: client -> nextjs_backend -> s3_bucket 
-        // GOOD generate upload url
+      const { success, signedUrl, uploadedFileId } = await generateUploadUrl({
+        filename: file.name,
+        contentType: file.type,
+      });
 
-        const {success, signedUrl, uploadedFileId} = await generateUploadUrl({
-            filename: file.name,
-            contentType: file.type
-        })
+      if (!success) throw new Error("Failed to get upload URL");
 
-        if(!success) throw new Error("failed to get upload url")
-        
-        const uploadResponse = await fetch(signedUrl, {
-            method: "PUT",
-            body: file,
-            headers: {
-                "Content-Type": file.type
-            
-            }
-        }) 
+      const uploadResponse = await fetch(signedUrl, {
+        method: "PUT",
+        body: file,
+        headers: {
+          "Content-Type": file.type,
+        },
+      });
 
-        if (!uploadResponse.ok)
-          throw new Error(`Upload filed with status: ${uploadResponse.status}`);
+      if (!uploadResponse.ok)
+        throw new Error(`Upload filed with status: ${uploadResponse.status}`);
 
-        await processVideo(uploadedFileId)
+      await processVideo(uploadedFileId);
 
-        setFiles([]);
+      setFiles([]);
 
-        toast.success("Video uploaded successfully", {
-          description:
-            "Your video has been scheduled for processing. Check the status below.",
-          duration: 5000,
-        });
-
+      toast.success("Video uploaded successfully", {
+        description:
+          "Your video has been scheduled for processing. Check the status below.",
+        duration: 5000,
+      });
     } catch (error) {
-        toast.error("Upload failed", {
-          description:
-            "There was a problem uploading your video. Please try again.",
-        });
+      toast.error("Upload failed", {
+        description:
+          "There was a problem uploading your video. Please try again.",
+      });
     } finally {
-        setUploading(false);
+      setUploading(false);
     }
- }
+  };
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col space-y-6 px-4 py-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="tracking-right text-2xl font-semibold">
+          <h1 className="text-2xl font-semibold tracking-tight">
             Podcast Clipper
           </h1>
           <p className="text-muted-foreground">
@@ -118,11 +117,13 @@ export function DashboardClient({
           <Button>Buy Credits</Button>
         </Link>
       </div>
+
       <Tabs defaultValue="upload">
         <TabsList>
           <TabsTrigger value="upload">Upload</TabsTrigger>
           <TabsTrigger value="my-clips">My Clips</TabsTrigger>
         </TabsList>
+
         <TabsContent value="upload">
           <Card>
             <CardHeader>
@@ -159,6 +160,7 @@ export function DashboardClient({
                   </>
                 )}
               </Dropzone>
+
               <div className="mt-2 flex items-start justify-between">
                 <div>
                   {files.length > 0 && (
@@ -186,6 +188,7 @@ export function DashboardClient({
                   )}
                 </Button>
               </div>
+
               {uploadedFiles.length > 0 && (
                 <div className="pt-6">
                   <div className="mb-2 flex items-center justify-between">
@@ -208,7 +211,7 @@ export function DashboardClient({
                         <TableRow>
                           <TableHead>File</TableHead>
                           <TableHead>Uploaded</TableHead>
-                          <TableHead>Processed</TableHead>
+                          <TableHead>Status</TableHead>
                           <TableHead>Clips created</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -219,11 +222,7 @@ export function DashboardClient({
                               {item.filename}
                             </TableCell>
                             <TableCell className="text-muted-foreground text-sm">
-                              {new Date(item.createdAt).toLocaleDateString('en-GB', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric'
-                              })}
+                              {new Date(item.createdAt).toLocaleDateString()}
                             </TableCell>
                             <TableCell>
                               {item.status === "queued" && (
@@ -264,20 +263,21 @@ export function DashboardClient({
             </CardContent>
           </Card>
         </TabsContent>
-          <TabsContent value="my-clips">
-            <Card>
-              <CardHeader>
-                <CardTitle>My Clips</CardTitle>
-                <CardDescription>
-                  View and manage your generated clips here. Processing may take
-                  a few minuntes.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ClipDisplay clips={clips} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+
+        <TabsContent value="my-clips">
+          <Card>
+            <CardHeader>
+              <CardTitle>My Clips</CardTitle>
+              <CardDescription>
+                View and manage your generated clips here. Processing may take a
+                few minuntes.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ClipDisplay clips={clips} />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
