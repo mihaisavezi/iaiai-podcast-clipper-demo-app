@@ -55,17 +55,15 @@ export const helloWorld = inngest.createFunction(
           });
         });
 
-        await step.run("call-modal-endpoint", async () => {
-          await fetch(env.PROCESS_VIDEO_ENDPOINT, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${env.PROCESS_VIDEO_ENDPOINT_AUTH}`,
-            },
-            body: JSON.stringify({
-              s3_key: s3Key,
-            }),
-          });
+        await step.fetch(env.PROCESS_VIDEO_ENDPOINT, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${env.PROCESS_VIDEO_ENDPOINT_AUTH}`,
+          },
+          body: JSON.stringify({
+            s3_key: s3Key,
+          }),
         });
 
         const { clipsFound } = await step.run(
