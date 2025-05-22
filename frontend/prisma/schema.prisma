@@ -57,9 +57,9 @@ model Session {
 model User {
     id               String    @id @default(cuid())
     name             String?
-    email            String?   @unique
+    email            String    @unique
     emailVerified    DateTime?
-    password         String?
+    password         String
     credits          Int       @default(10)
     stripeCustomerId String?   @unique
     image            String?
@@ -68,7 +68,7 @@ model User {
     posts            Post[]
 
     uploadedFiles UploadedFile[]
-    Clip          Clip[]
+    clips         Clip[]
 }
 
 model UploadedFile {
